@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KashhCMD</title>
+    <meta
+      name="description"
+      content="KashhCMD is a self-taught web designer and Discord bot developer. Bots, dashboards and static sites, built end to end."
+    />
+    <meta name="author" content="KashhCMD" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fcfcfc" />
+    <link rel="icon" type="image/svg+xml" href="/portfolio-v2/favicon.svg" />
+    <link rel="canonical" href="https://kashcmdd.github.io/portfolio-v2/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="KashhCMD" />
+    <meta
+      property="og:description"
+      content="Self-taught web designer and Discord bot developer. Bots, dashboards and static sites, built end to end."
+    />
+    <meta property="og:url" content="https://kashcmdd.github.io/portfolio-v2/" />
+    <meta property="og:image" content="https://kashcmdd.github.io/portfolio-v2/images/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link
+      rel="preload"
+      href="/portfolio-v2/fonts/inter-normal-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/portfolio-v2/fonts/caveat-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <script>
+      // Apply the saved theme before the first paint so a returning visitor
+      // does not get a flash of the other palette.
+      try {
+        if (localStorage.getItem('v2-theme') === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
