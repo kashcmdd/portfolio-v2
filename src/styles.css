@@ -149,16 +149,6 @@ a:hover {
 .shell {
   position: relative;
   z-index: 1;
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 700ms ease,
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.shell.is-ready {
-  opacity: 1;
-  transform: none;
 }
 
 .header {
@@ -289,7 +279,7 @@ a:hover {
   color: var(--muted);
 }
 
-.greeting span {
+.emoji {
   margin-left: 2px;
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
@@ -527,12 +517,11 @@ a:hover {
   }
 }
 
-.petals--intro {
-  filter: blur(4px);
-  animation: intro-bloom 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+.petals {
+  animation: petals-in 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-@keyframes intro-bloom {
+@keyframes petals-in {
   from {
     opacity: 0;
     transform: scale(1.06);
@@ -544,92 +533,163 @@ a:hover {
 }
 
 /* ---------------------------------------------------------------------------
-   Intro
+   Reveal
+   The page is the intro. Words begin transparent and blurred, then resolve in
+   order; the signature writes itself first and the chrome follows the copy.
+   One `data-phase` attribute on the shell drives the whole sequence.
 --------------------------------------------------------------------------- */
 
-.intro {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
+.word {
+  display: inline;
+  opacity: 0;
+  filter: blur(4px);
+  pointer-events: none;
+  transition:
+    opacity 420ms ease-out,
+    filter 420ms ease-out;
+  transition-delay: calc(var(--base, 0ms) + var(--i, 0) * 26ms);
+}
+
+.shell[data-phase='reveal'] .word,
+.shell[data-phase='done'] .word {
   opacity: 1;
-  transition: opacity 500ms ease;
+  filter: blur(0);
+  pointer-events: auto;
 }
 
-.intro.is-leaving {
+.shell[data-speed='fast'] .word {
+  transition-duration: 150ms;
+  transition-delay: calc(var(--i, 0) * 3ms);
+}
+
+.shell[data-speed='fast'] .name-text {
+  animation-duration: 350ms;
+  animation-delay: 0s;
+}
+
+.shell[data-phase='done'] .word {
+  transition: none;
+}
+
+/* Nothing in an invisible paragraph should be reachable with the keyboard. */
+.shell[data-phase='intro'] .word {
+  visibility: hidden;
+}
+
+.header {
   opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 500ms ease,
+    visibility 0s linear 500ms;
 }
 
-.intro:focus {
-  outline: none;
+.shell[data-phase='reveal'] .header,
+.shell[data-phase='done'] .header {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 500ms ease,
+    visibility 0s;
 }
 
-.intro-center {
-  position: relative;
-  z-index: 2;
-  text-align: center;
+.shell[data-phase='done'] .header {
+  transition: none;
 }
 
-.signature--intro {
-  font-size: 76px;
-  line-height: 1;
+/* Sections wait for the copy, then rise. They sit below the fold during the
+   sequence, so this mainly matters when the page unlocks mid-scroll. */
+.section,
+.footer {
   opacity: 0;
-  transform: translateY(8px);
-  animation: intro-rise 900ms cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+  transform: translateY(14px);
+  transition:
+    opacity 600ms ease,
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.intro-line {
-  margin: 18px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  letter-spacing: 0.01em;
-  opacity: 0;
-  animation: intro-rise 800ms ease 0.75s forwards;
+.shell[data-phase='reveal'] #work {
+  opacity: 1;
+  transform: none;
+  transition-delay: 3400ms;
 }
 
-@keyframes intro-rise {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
+.shell[data-phase='reveal'] #writing {
+  opacity: 1;
+  transform: none;
+  transition-delay: 3700ms;
+}
+
+.shell[data-phase='reveal'] .footer {
+  opacity: 1;
+  transform: none;
+  transition-delay: 3900ms;
+}
+
+.shell[data-speed='fast'] #work,
+.shell[data-speed='fast'] #writing,
+.shell[data-speed='fast'] .footer {
+  transition-delay: 150ms;
+}
+
+.shell[data-phase='done'] .section,
+.shell[data-phase='done'] .footer {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* The signature is written in rather than faded. */
+.name-text {
+  clip-path: inset(-12% 100% -12% 0);
+  animation: signature-write 1.25s cubic-bezier(0.62, 0, 0.36, 1) 0.1s forwards;
+}
+
+@keyframes signature-write {
   to {
-    opacity: 1;
-    transform: translateY(0);
+    clip-path: inset(-12% 0 -12% 0);
   }
 }
 
-.intro-controls {
-  position: absolute;
-  z-index: 2;
-  bottom: 36px;
+.shell[data-phase='done'] .name-text {
+  animation: none;
+  clip-path: none;
+}
+
+/* Controls ----------------------------------------------------------------- */
+
+.intro-bar {
+  position: fixed;
+  z-index: 60;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 6px;
+  gap: 2px;
+  padding: 3px;
   border-radius: 999px;
   background: var(--panel);
   box-shadow: 0 18px 40px -22px var(--shadow);
   border: 1px solid var(--line-soft);
-  opacity: 0;
-  animation: intro-rise 700ms ease 1.2s forwards;
 }
 
 .intro-button {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 13px;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--ink);
   font: inherit;
   font-size: 13px;
+  line-height: 28px;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background-color 200ms ease;
 }
 
 .intro-button:hover {
@@ -674,6 +734,12 @@ a:hover {
     font-size: 46px;
   }
 
+  /* At 390px the mid-frame flowers sit behind the copy. Dimming the whole
+     layer keeps the warmth without putting orange under the text. */
+  .petals {
+    filter: opacity(0.6);
+  }
+
   .section {
     margin-top: 52px;
   }
@@ -694,9 +760,6 @@ a:hover {
     margin-top: 64px;
   }
 
-  .signature--intro {
-    font-size: 62px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -709,21 +772,28 @@ a:hover {
   }
 
   .work-frame img,
-  .shell,
-  .intro {
+  .word,
+  .header,
+  .section,
+  .footer {
     transition: none;
   }
 
-  .shell {
+  .word {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+  }
+
+  .header,
+  .section,
+  .footer {
     opacity: 1;
     transform: none;
   }
 
-  .signature--intro,
-  .intro-line,
-  .intro-controls,
-  .petals--intro {
+  .name-text {
     animation: none;
-    opacity: 1;
+    clip-path: none;
   }
 }

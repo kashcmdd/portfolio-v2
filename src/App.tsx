@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Intro } from './components/Intro';
+import { IntroControls } from './components/IntroControls';
 import { Petals } from './components/Petals';
+import { Reveal } from './components/Reveal';
 import { profile, projects, writing } from './data';
 
 const Asterisk: React.FC<{ className?: string }> = ({ className = 'icon' }) => (
@@ -32,8 +33,14 @@ const Moon: React.FC = () => (
   </svg>
 );
 
+type Phase = 'intro' | 'reveal' | 'done';
+
 const reducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const INTRO_HOLD = 2200;
+const REVEAL_LENGTH = 4400;
+const FAST_REVEAL = 1400;
 
 export const App: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
@@ -42,10 +49,11 @@ export const App: React.FC = () => {
       : 'light'
   );
 
-  // Every visit gets the title card, including a reload. Only reduced-motion
-  // visitors skip it, and they skip it before anything is painted.
-  const [showIntro, setShowIntro] = useState(() => !reducedMotion());
-  const [ready, setReady] = useState(() => !showIntro);
+  // The page is the intro: the signature writes itself, then the copy arrives
+  // word by word and the chrome follows. `done` is the ordinary, scrollable
+  // state, and reduced-motion visitors start there.
+  const [phase, setPhase] = useState<Phase>(() => (reducedMotion() ? 'done' : 'intro'));
+  const [fast, setFast] = useState(false);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -56,26 +64,36 @@ export const App: React.FC = () => {
     try {
       localStorage.setItem('v2-theme', theme);
     } catch {
-      /* storage can be blocked; the class above still applies for this visit */
+      /* storage can be blocked; the attribute above still applies for this visit */
     }
   }, [theme]);
 
-  const dismissIntro = () => {
-    setShowIntro(false);
-    setReady(true);
-  };
+  useEffect(() => {
+    if (phase !== 'intro') return;
+    const timer = window.setTimeout(() => setPhase('reveal'), INTRO_HOLD);
+    return () => window.clearTimeout(timer);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'reveal') return;
+    const timer = window.setTimeout(() => setPhase('done'), fast ? FAST_REVEAL : REVEAL_LENGTH);
+    return () => window.clearTimeout(timer);
+  }, [phase, fast]);
+
+  useEffect(() => {
+    document.body.classList.toggle('is-locked', phase !== 'done');
+    return () => document.body.classList.remove('is-locked');
+  }, [phase]);
 
   return (
     <>
-      {showIntro && <Intro onDone={dismissIntro} />}
-
       <a className="skip-link" href="#main">
         Skip to content
       </a>
 
       <Petals />
 
-      <div className={`shell ${ready ? 'is-ready' : ''}`.trim()}>
+      <div className="shell" data-phase={phase} data-speed={fast ? 'fast' : undefined}>
         <header className="header">
           <div className="header-inner">
             <a className="mark" href="#top" aria-label="KashhCMD, back to top">
@@ -108,35 +126,64 @@ export const App: React.FC = () => {
             <h1 id="portfolio-name" className="name">
               <span className="name-text">{profile.name}</span>
             </h1>
-            <p className="greeting">
-              hey <span aria-hidden="true">👋</span>
-            </p>
+
+            <Reveal
+              className="greeting"
+              atoms={[
+                'hey ',
+                <span key="wave" className="emoji" aria-hidden="true">
+                  👋
+                </span>,
+              ]}
+            />
 
             <div className="copy">
-              <p>
-                I&rsquo;ve been building for the web for as long as I can remember — starting with{' '}
-                <span className="phrase">Discord bots</span> for servers I was in, then the APIs,
-                dashboards and databases behind them. I&rsquo;m self-taught, and I still learn by
-                shipping.
-              </p>
-              <p>
-                My main project is <span className="phrase">Nebula</span>, a self-hosted Discord bot
-                with <mark>70+ tools</mark> that can read and change a live server. Around it I
-                maintain <span className="phrase">Melon</span>, built a{' '}
-                <a
-                  href="https://kashcmdd.github.io/portfolio/projects/rainbow-leaderboard/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Rainbow Six ladder
-                </a>
-                , and keep a <em className="pink">journal</em> about the decisions behind the code.
-              </p>
-              <p>
-                I care about the parts people don&rsquo;t see: bundle budgets, accessible dialogs,
-                and pages that work with JavaScript switched off.
-              </p>
-              <p>Here&rsquo;s some of what I&rsquo;ve made.</p>
+              <Reveal
+                base={350}
+                atoms={[
+                  'I’ve been building for the web for as long as I can remember — starting with ',
+                  <span key="bots" className="phrase">
+                    Discord bots
+                  </span>,
+                  ' for servers I was in, then the APIs, dashboards and databases behind them. I’m self-taught, and I still learn by shipping.',
+                ]}
+              />
+              <Reveal
+                base={1250}
+                atoms={[
+                  'My main project is ',
+                  <span key="nebula" className="phrase">
+                    Nebula
+                  </span>,
+                  ', a self-hosted Discord bot with ',
+                  <mark key="tools">70+ tools</mark>,
+                  ' that can read and change a live server. Around it I maintain ',
+                  <span key="melon" className="phrase">
+                    Melon
+                  </span>,
+                  ', built a ',
+                  <a
+                    key="ladder"
+                    href="https://kashcmdd.github.io/portfolio/projects/rainbow-leaderboard/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Rainbow Six ladder
+                  </a>,
+                  ', and keep a ',
+                  <em key="journal" className="pink">
+                    journal
+                  </em>,
+                  ' about the decisions behind the code.',
+                ]}
+              />
+              <Reveal
+                base={2300}
+                atoms={[
+                  'I care about the parts people don’t see: bundle budgets, accessible dialogs, and pages that work with JavaScript switched off.',
+                ]}
+              />
+              <Reveal base={3050} atoms={['Here’s some of what I’ve made.']} />
             </div>
           </section>
 
@@ -218,6 +265,16 @@ export const App: React.FC = () => {
           </footer>
         </main>
       </div>
+
+      {phase !== 'done' && (
+        <IntroControls
+          onFastForward={() => {
+            setFast(true);
+            setPhase('reveal');
+          }}
+          onSkip={() => setPhase('done')}
+        />
+      )}
     </>
   );
 };
