@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
    Type
-   Inter for the page, Caveat for the signature, JetBrains Mono for dates.
-   All three are self-hosted so the page makes no third-party request.
+   Inter for the page and JetBrains Mono for dates, both self-hosted. The
+   signature is an SVG path, so it needs no webfont at all.
 --------------------------------------------------------------------------- */
 
 @font-face {
@@ -10,14 +10,6 @@
   font-weight: 100 900;
   font-display: swap;
   src: url('/portfolio-v2/fonts/inter-normal-latin.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Caveat';
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url('/portfolio-v2/fonts/caveat-latin.woff2') format('woff2');
 }
 
 @font-face {
@@ -262,16 +254,37 @@ a:hover {
 .name {
   margin: 0;
   font-weight: 400;
+  line-height: 0;
 }
 
-.name-text {
-  display: inline-block;
-  font-family: 'Caveat', 'Segoe Script', cursive;
-  font-size: 52px;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  transform: rotate(-1.6deg);
-  transform-origin: left center;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.signature-hero {
+  display: block;
+  width: 268px;
+  height: auto;
+  color: var(--ink);
+  /* Same mechanism as the reference: reveal the path left to right rather
+     than drawing a stroke, which keeps the thick and thin parts intact. */
+  clip-path: inset(-10% 100% -10% 0);
+  animation: signature-write 1.25s cubic-bezier(0.62, 0, 0.36, 1) 0.1s forwards;
+}
+
+.signature-footer {
+  display: block;
+  width: 128px;
+  height: auto;
+  color: var(--ink);
 }
 
 .greeting {
@@ -461,16 +474,9 @@ a:hover {
   gap: 24px;
 }
 
-.signature {
+.footer-signature {
   margin: 0;
-  font-family: 'Caveat', 'Segoe Script', cursive;
-  font-weight: 400;
-  transform: rotate(-1.4deg);
-}
-
-.signature--footer {
-  font-size: 30px;
-  line-height: 1;
+  line-height: 0;
 }
 
 .footer-links {
@@ -562,7 +568,7 @@ a:hover {
   transition-delay: calc(var(--i, 0) * 3ms);
 }
 
-.shell[data-speed='fast'] .name-text {
+.shell[data-speed='fast'] .signature-hero {
   animation-duration: 350ms;
   animation-delay: 0s;
 }
@@ -640,18 +646,13 @@ a:hover {
 }
 
 /* The signature is written in rather than faded. */
-.name-text {
-  clip-path: inset(-12% 100% -12% 0);
-  animation: signature-write 1.25s cubic-bezier(0.62, 0, 0.36, 1) 0.1s forwards;
-}
-
 @keyframes signature-write {
   to {
-    clip-path: inset(-12% 0 -12% 0);
+    clip-path: inset(-10% 0 -10% 0);
   }
 }
 
-.shell[data-phase='done'] .name-text {
+.shell[data-phase='done'] .signature-hero {
   animation: none;
   clip-path: none;
 }
@@ -730,8 +731,8 @@ a:hover {
     padding-top: 84px;
   }
 
-  .name-text {
-    font-size: 46px;
+  .signature-hero {
+    width: 224px;
   }
 
   /* At 390px the mid-frame flowers sit behind the copy. Dimming the whole
@@ -792,7 +793,7 @@ a:hover {
     transform: none;
   }
 
-  .name-text {
+  .signature-hero {
     animation: none;
     clip-path: none;
   }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { IntroControls } from './components/IntroControls';
 import { Petals } from './components/Petals';
 import { Reveal } from './components/Reveal';
+import { Signature } from './components/Signature';
 import { profile, projects, writing } from './data';
 
 const Asterisk: React.FC<{ className?: string }> = ({ className = 'icon' }) => (
@@ -124,7 +125,8 @@ export const App: React.FC = () => {
 
           <section className="intro-block" aria-labelledby="portfolio-name">
             <h1 id="portfolio-name" className="name">
-              <span className="name-text">{profile.name}</span>
+              <span className="sr-only">{profile.name}</span>
+              <Signature className="signature-hero" />
             </h1>
 
             <Reveal
@@ -253,7 +255,9 @@ export const App: React.FC = () => {
           </section>
 
           <footer className="footer">
-            <p className="signature signature--footer">kashhcmd</p>
+            <div className="footer-signature">
+              <Signature className="signature-footer" />
+            </div>
             <div className="footer-links">
               <a href={profile.github} target="_blank" rel="noopener noreferrer">
                 github.com/kashcmdd

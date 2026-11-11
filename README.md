@@ -22,8 +22,9 @@ npm run preview
   portfolio (`src/data.ts` here). Project and journal links point at the
   canonical pages there, so this site is a front door, not a second source of
   truth. Update both when a project changes.
-- Fonts are self-hosted: Inter and JetBrains Mono from the main site, plus
-  Caveat for the signature (SIL OFL, licence in `public/fonts/`).
+- Fonts are self-hosted: Inter and JetBrains Mono from the main site. The
+  signature is an SVG path generated from Alex Brush (SIL OFL; licence in
+  `public/fonts/`), so the hero needs no script webfont.
 - The flowers are SVG, not a photograph, and they stop moving under
   `prefers-reduced-motion`.
 - The intro is skippable, leaves after five seconds, and does not mount at all
