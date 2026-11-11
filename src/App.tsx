@@ -42,14 +42,10 @@ export const App: React.FC = () => {
       : 'light'
   );
 
-  const [showIntro, setShowIntro] = useState(() => {
-    if (reducedMotion()) return false;
-    try {
-      return sessionStorage.getItem('v2-intro') !== 'done';
-    } catch {
-      return true;
-    }
-  });
+  // Every visit gets the title card, including a reload. Only reduced-motion
+  // visitors skip it, and they skip it before anything is painted.
+  const [showIntro, setShowIntro] = useState(() => !reducedMotion());
+  const [ready, setReady] = useState(() => !showIntro);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -66,11 +62,7 @@ export const App: React.FC = () => {
 
   const dismissIntro = () => {
     setShowIntro(false);
-    try {
-      sessionStorage.setItem('v2-intro', 'done');
-    } catch {
-      /* the intro simply plays again next time */
-    }
+    setReady(true);
   };
 
   return (
@@ -83,7 +75,7 @@ export const App: React.FC = () => {
 
       <Petals />
 
-      <div className="shell">
+      <div className={`shell ${ready ? 'is-ready' : ''}`.trim()}>
         <header className="header">
           <div className="header-inner">
             <a className="mark" href="#top" aria-label="KashhCMD, back to top">

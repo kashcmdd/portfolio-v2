@@ -7,7 +7,7 @@ import { Petals } from './Petals';
  * It is a short, skippable title card rather than a loader: the page is already
  * rendered behind it, and the copy says so. `Fast forward` and `Skip` do the
  * same thing — a visitor should not have to decode the difference — and the
- * card leaves on its own after five seconds.
+ * card leaves on its own after six and a half seconds.
  *
  * Nothing here runs for a visitor who prefers reduced motion: App decides not
  * to mount it at all. A screen-reader visitor gets a dialog with a name and an
@@ -26,7 +26,7 @@ export const Intro: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   }, [onDone]);
 
   useEffect(() => {
-    const timer = window.setTimeout(finish, 5000);
+    const timer = window.setTimeout(finish, 6500);
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') finish();
     };

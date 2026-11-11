@@ -149,15 +149,43 @@ a:hover {
 .shell {
   position: relative;
   z-index: 1;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.shell.is-ready {
+  opacity: 1;
+  transform: none;
 }
 
 .header {
   position: sticky;
   top: 0;
   z-index: 20;
+}
+
+/* A progressive blur rather than a solid bar: the backdrop fades out towards
+   the bottom of the header, so the flowers pass under the nav instead of
+   stopping at a hard edge. Kept on a pseudo-element so the mask does not touch
+   the links themselves. */
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   backdrop-filter: saturate(150%) blur(14px);
   -webkit-backdrop-filter: saturate(150%) blur(14px);
-  background: color-mix(in srgb, var(--bg) 74%, transparent);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg) 88%, transparent),
+    color-mix(in srgb, var(--bg) 52%, transparent) 70%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
 
 .header-inner {
@@ -501,6 +529,18 @@ a:hover {
 
 .petals--intro {
   filter: blur(4px);
+  animation: intro-bloom 2.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes intro-bloom {
+  from {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -537,6 +577,9 @@ a:hover {
 .signature--intro {
   font-size: 76px;
   line-height: 1;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: intro-rise 900ms cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
 }
 
 .intro-line {
@@ -544,6 +587,19 @@ a:hover {
   color: var(--muted);
   font-size: 13px;
   letter-spacing: 0.01em;
+  opacity: 0;
+  animation: intro-rise 800ms ease 0.75s forwards;
+}
+
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .intro-controls {
@@ -558,6 +614,8 @@ a:hover {
   background: var(--panel);
   box-shadow: 0 18px 40px -22px var(--shadow);
   border: 1px solid var(--line-soft);
+  opacity: 0;
+  animation: intro-rise 700ms ease 1.2s forwards;
 }
 
 .intro-button {
@@ -651,7 +709,21 @@ a:hover {
   }
 
   .work-frame img,
+  .shell,
   .intro {
     transition: none;
+  }
+
+  .shell {
+    opacity: 1;
+    transform: none;
+  }
+
+  .signature--intro,
+  .intro-line,
+  .intro-controls,
+  .petals--intro {
+    animation: none;
+    opacity: 1;
   }
 }
